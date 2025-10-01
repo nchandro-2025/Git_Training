@@ -2,7 +2,7 @@ pipeline {
     agent any
 
     environment {
-        WAR_SOURCE = 'java-web-app/target/java-web-app-1.0-SNAPSHOT.war'
+        WAR_SOURCE = './sample-java-code/java-web-app/target/java-web-app-1.0-SNAPSHOT.war'
         WAR_DEST = 'ROOT.war'
         DOCKER_IMAGE = 'java-web-app'
         IMAGE_NAME = "java-web-app"
