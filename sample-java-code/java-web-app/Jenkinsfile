@@ -31,10 +31,11 @@ pipeline {
         }
 	
         stage('Check WAR File') {
-    steps {
-        sh 'find . -name "*.war"'
-          }
+            steps {
+                sh 'find . -name "*.war"'
+                  }
         }
+
 
         stage('Docker Build') {
             steps {
