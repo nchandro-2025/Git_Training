@@ -1,15 +1,13 @@
 
-# Use official Tomcat base image
-FROM tomcat:11.0
+ROM tomcat:11.0
 
-# Remove default web apps
+ARG WORKSPACE
+
 RUN rm -rf /usr/local/tomcat/webapps/*
 
-# Copy the specific WAR file into Tomcat webapps directory
-COPY java-web-app/target/java-web-app-1.0-SNAPSHOT.war /usr/local/tomcat/webapps/ROOT.war
+# Use the passed workspace path to copy the WAR file
+COPY  /var/lib/jenkins/workspace/Java_web_application_sample/sample-java-code/java-web-app/target/*.war /usr/local/tomcat/webapps/ROOT.war
 
-# Expose port 8080
 EXPOSE 8080
 
-# Start Tomcat server
 CMD ["catalina.sh", "run"]
