@@ -1,12 +1,9 @@
 
 FROM tomcat:11.0
 
-ARG WORKSPACE
-
 RUN rm -rf /usr/local/tomcat/webapps/*
 
-# Use the passed workspace path to copy the WAR file
-COPY ${WORKSPACE}/java-web-app/target/ROOT.war /usr/local/tomcat/webapps/ROOT.war
+COPY ROOT.war /usr/local/tomcat/webapps/ROOT.war
 
 EXPOSE 8080
 
