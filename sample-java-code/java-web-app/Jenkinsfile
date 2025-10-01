@@ -1,76 +1,42 @@
+
 pipeline {
     agent any
 
     environment {
-        WAR_SOURCE = './sample-java-code/java-web-app/target/java-web-app-1.0-SNAPSHOT.war'
-        WAR_DEST = 'ROOT.war'
+        WAR_SOURCE = 'sample-java-code/java-web-app/target/java-web-app-1.0-SNAPSHOT.war'
+        WAR_DEST = 'sample-java-code/java-web-app/ROOT.war'
         DOCKER_IMAGE = 'java-web-app'
-        IMAGE_NAME = "java-web-app"
-        DOCKER_REGISTRY = "nchandrocode1"
-        DOCKER_CREDENTIALS_ID = "docker-hub-credentials"
-        CONTAINER_PORT = "8080"
+        DOCKER_BUILD_DIR = 'sample-java-code/java-web-app'
     }
 
     stages {
-        stage('Checkout') {
+        stage('Build WAR') {
             steps {
-                script {
-                    def gitRepoUrl = 'https://github.com/nchandro-2025/Git_Training.git'
-                    checkout([$class: 'GitSCM', 
-                        branches: [[name: '*/main']], 
-                        userRemoteConfigs: [[url: gitRepoUrl]], 
-                        extensions: [[$class: 'CleanBeforeCheckout'], [$class: 'CloneOption', noTags: false, shallow: true, depth: 1]]
-                    ])
+                dir('sample-java-code/java-web-app') {
+                    sh 'mvn clean package'
                 }
             }
         }
 
-        stage('Build WAR') {
+        stage('Prepare WAR for Docker') {
             steps {
-                dir('sample-java-code') {
-                   dir('java-web-app') {
-                       sh 'mvn clean package'
-            }
-        }
-        }
-}
-	
-        stage('Check WAR File') {
-            steps {
-                sh 'find . -name "*.war"'
-                  }
-        }
-
-       
-        stage('Show Dockerfile Location') {
-            steps {
-                sh 'echo "Current directory:"'
-                sh 'pwd'
-                sh 'echo "Listing files:"'
-                sh 'ls -l'
-                sh 'find . -name Dockerfile'
-                  }
-        }
-
-         stage('Prepare WAR for Docker') {
-            steps {
+                echo 'Renaming WAR file to ROOT.war...'
                 sh "cp ${WAR_SOURCE} ${WAR_DEST}"
             }
         }
 
-
         stage('Build Docker Image') {
             steps {
-                 dir('sample-java-code') {
-                     dir('java-web-app') {
-                         sh "docker build -t ${DOCKER_IMAGE} ."
-                        }
-                     }
-                  }
-         }
+                echo 'Building Docker image...'
+                dir("${DOCKER_BUILD_DIR}") {
+                    sh "docker build -t ${DOCKER_IMAGE} ."
+                }
+            }
+        }
 
         stage('Run Docker Container') {
             steps {
+                echo 'Running Docker container...'
                 sh "docker run -d -p 8080:8080 ${DOCKER_IMAGE}"
             }
         }
@@ -80,18 +46,18 @@ pipeline {
                 expression { return currentBuild.currentResult == 'SUCCESS' }
             }
             steps {
-                echo 'Ready to push image if needed.'
-                // Add docker push command here if required
+                echo 'Docker image ready to be pushed (add credentials and registry info if needed).'
+                // Example: sh "docker push your-registry/${DOCKER_IMAGE}"
             }
         }
     }
 
     post {
         success {
-            echo 'Pipeline succeeded!'
+            echo '✅ Deployment successful!'
         }
         failure {
-            echo 'Pipeline failed!'
+            echo '❌ Build or deployment failed.'
         }
     }
 }
