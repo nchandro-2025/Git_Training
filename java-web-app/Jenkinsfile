@@ -2,56 +2,59 @@ pipeline {
     agent any
 
     environment {
-        IMAGE_NAME = "java-web-app"
-        DOCKER_REGISTRY = "your-dockerhub-username"
-        SONARQUBE_SERVER = "SonarQubeServer"
+        // Define environment variables here
+        MY_ENV_VAR = 'Custom Value'
     }
 
     stages {
-        stage('Clone') {
+        stage('Checkout') {
             steps {
-                def gitRepoUrl = 'https://github.com/nchandro-2025/Git_Training.git'
+                script {
+                    // Clone the Git repository's master branch
+                    def gitRepoUrl = 'https://github.com/nchandro-2025/Git_Training.git'
 
                     checkout([$class: 'GitSCM', 
-                        branches: [[name: '*/master']], 
+                        branches: [[name: '*/main']], 
                         userRemoteConfigs: [[url: gitRepoUrl]], 
                         extensions: [[$class: 'CleanBeforeCheckout'], [$class: 'CloneOption', noTags: false, shallow: true, depth: 1]]
-            }
-        }
-
-        stage('Build & Test') {
-            steps {
-                sh 'mvn clean verify'
-            }
-        }
-        
-        stage('SonarQube Analysis') {
-            steps {
-                withSonarQubeEnv('SonarQubeServer') {
-                    sh 'mvn sonar:sonar -Dsonar.projectKey=java-web-app -Dsonar.host.url=http://your-sonarqube-url -Dsonar.login=your-sonarqube-token'
-               }
-            }
-        }
-
-        stage('Docker Build') {
-            steps {
-                sh 'docker build -t $DOCKER_REGISTRY/$IMAGE_NAME .'
-            }
-        }
-
-        stage('Docker Push') {
-            steps {
-                withCredentials([usernamePassword(credentialsId: 'dockerhub-creds', usernameVariable: 'USERNAME', passwordVariable: 'PASSWORD')]) {
-                    sh 'echo $PASSWORD | docker login -u $USERNAME --password-stdin'
-                    sh 'docker push $DOCKER_REGISTRY/$IMAGE_NAME'
+                    ])
                 }
+            }
+        }
+
+        stage('Build') {
+            steps {
+                // Build your application here (e.g., compile, package, etc.)
+                sh '''
+                ls
+                echo "In Build Step"
+                '''
+            }
+        }
+
+        stage('Test') {
+            steps {
+                // Run your tests (e.g., unit tests, integration tests)
+                sh 'echo "In Test Step"'
             }
         }
 
         stage('Deploy') {
             steps {
-                sh 'docker run -d -p 8080:8080 $DOCKER_REGISTRY/$IMAGE_NAME'
+                // Deploy your application to a target environment (e.g., staging, production)
+                sh 'echo "Value of ENV Varaible is "$MY_ENV_VAR""'
             }
+        }
+    }
+
+    post {
+        success {
+            // Actions to perform when the pipeline succeeds
+            echo 'Pipeline succeeded!'
+        }
+        failure {
+            // Actions to perform when the pipeline fails
+            echo 'Pipeline failed!'
         }
     }
 }
