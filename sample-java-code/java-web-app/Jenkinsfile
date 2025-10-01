@@ -24,10 +24,11 @@ pipeline {
 
         stage('Build WAR') {
             steps {
+                dir('java-web-app') {
                 sh 'mvn clean package'
             }
         }
-
+        }
         stage('Docker Build') {
             steps {
                 script {
