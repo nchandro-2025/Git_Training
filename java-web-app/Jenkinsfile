@@ -1,0 +1,52 @@
+pipeline {
+    agent any
+
+    environment {
+        IMAGE_NAME = "java-web-app"
+        DOCKER_REGISTRY = "your-dockerhub-username"
+        SONARQUBE_SERVER = "SonarQubeServer"
+    }
+
+    stages {
+        stage('Clone') {
+            steps {
+                git 'https://github.com/your-username/java-web-app.git'
+            }
+        }
+
+        stage('Build & Test') {
+            steps {
+                sh 'mvn clean verify'
+            }
+        }
+
+        stage('SonarQube Analysis') {
+            steps {
+                withSonarQubeEnv('SonarQubeServer') {
+                    sh 'mvn sonar:sonar -Dsonar.projectKey=java-web-app -Dsonar.host.url=http://your-sonarqube-url -Dsonar.login=your-sonarqube-token'
+                }
+            }
+        }
+
+        stage('Docker Build') {
+            steps {
+                sh 'docker build -t $DOCKER_REGISTRY/$IMAGE_NAME .'
+            }
+        }
+
+        stage('Docker Push') {
+            steps {
+                withCredentials([usernamePassword(credentialsId: 'dockerhub-creds', usernameVariable: 'USERNAME', passwordVariable: 'PASSWORD')]) {
+                    sh 'echo $PASSWORD | docker login -u $USERNAME --password-stdin'
+                    sh 'docker push $DOCKER_REGISTRY/$IMAGE_NAME'
+                }
+            }
+        }
+
+        stage('Deploy') {
+            steps {
+                sh 'docker run -d -p 8080:8080 $DOCKER_REGISTRY/$IMAGE_NAME'
+            }
+        }
+    }
+}
