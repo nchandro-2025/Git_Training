@@ -7,7 +7,6 @@ pipeline {
         WAR_DEST = 'sample-java-code/java-web-app/ROOT.war'
         DOCKER_IMAGE = 'java-web-app'
         DOCKER_BUILD_DIR = 'sample-java-code/java-web-app'
-        APP_PORT = '8081'
     }
 
     stages {
@@ -26,21 +25,6 @@ pipeline {
             }
         }
 
-        stage('Cleanup Old Containers') {
-            steps {
-                echo "Stopping any container using port ${APP_PORT}..."
-                sh '''
-                    CONTAINER_ID=$(docker ps --filter "publish=8080" -q)
-                    if [ ! -z "$CONTAINER_ID" ]; then
-                        echo "Stopping container $CONTAINER_ID"
-                        docker stop $CONTAINER_ID
-                    else
-                        echo "No container using port 8080 found."
-                    fi
-                '''
-            }
-        }
-
         stage('Build Docker Image') {
             steps {
                 echo 'Building Docker image...'
@@ -53,7 +37,7 @@ pipeline {
         stage('Run Docker Container') {
             steps {
                 echo 'Running Docker container...'
-                sh "docker run -d -p ${APP_PORT}:8080 ${DOCKER_IMAGE}"
+                sh "docker run -d -p 8081:8080 ${DOCKER_IMAGE}"
             }
         }
 
@@ -68,3 +52,12 @@ pipeline {
         }
     }
 
+    post {
+        success {
+            echo '✅ Deployment successful!'
+        }
+        failure {
+            echo '❌ Build or deployment failed.'
+        }
+    }
+}
