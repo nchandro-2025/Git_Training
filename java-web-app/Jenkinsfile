@@ -10,7 +10,12 @@ pipeline {
     stages {
         stage('Clone') {
             steps {
-                git 'https://github.com/nchandro-2025/Git_Training.git'
+                def gitRepoUrl = 'https://github.com/nchandro-2025/Git_Training.git'
+
+                    checkout([$class: 'GitSCM', 
+                        branches: [[name: '*/master']], 
+                        userRemoteConfigs: [[url: gitRepoUrl]], 
+                        extensions: [[$class: 'CleanBeforeCheckout'], [$class: 'CloneOption', noTags: false, shallow: true, depth: 1]]
             }
         }
 
