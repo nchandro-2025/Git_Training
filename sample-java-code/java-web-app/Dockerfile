@@ -11,6 +11,4 @@ COPY target/java-web-app-1.0-SNAPSHOT.war /usr/local/tomcat/webapps/ROOT.war
 EXPOSE 8080
 
 # Start Tomcat server
-CMD ["catalina.sh", "run"]FROM tomcat:9.0
-COPY target/java-web-app.war /usr/local/tomcat/webapps/
-EXPOSE 8080
+CMD ["catalina.sh", "run"]
