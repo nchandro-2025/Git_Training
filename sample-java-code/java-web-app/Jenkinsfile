@@ -36,6 +36,16 @@ pipeline {
                   }
         }
 
+       
+        stage('Show Dockerfile Location') {
+            steps {
+                sh 'echo "Current directory:"'
+                sh 'pwd'
+                sh 'echo "Listing files:"'
+                sh 'ls -l'
+                sh 'find . -name Dockerfile'
+                  }
+        }
 
         stage('Docker Build') {
             steps {
