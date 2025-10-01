@@ -24,11 +24,13 @@ pipeline {
 
         stage('Build WAR') {
             steps {
-                dir('java-web-app') {
-                sh 'mvn clean package'
+                dir('sample-java-code') {
+                   dir('java-web-app') {
+                       sh 'mvn clean package'
             }
         }
         }
+}
 	
         stage('Check WAR File') {
             steps {
