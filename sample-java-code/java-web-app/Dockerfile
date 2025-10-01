@@ -1,5 +1,5 @@
 
-ROM tomcat:11.0
+FROM tomcat:11.0
 
 ARG WORKSPACE
 
