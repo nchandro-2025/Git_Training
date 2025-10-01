@@ -20,33 +20,33 @@ pipeline {
             }
         }
         
-        //stage('SonarQube Analysis') {
-            //steps {
-                //withSonarQubeEnv('SonarQubeServer') {
-              //      sh 'mvn sonar:sonar -Dsonar.projectKey=java-web-app -Dsonar.host.url=http://your-sonarqube-url -Dsonar.login=your-sonarqube-token'
-            //    }
-          //  }
-        //}
+        stage('SonarQube Analysis') {
+            steps {
+                withSonarQubeEnv('SonarQubeServer') {
+                    sh 'mvn sonar:sonar -Dsonar.projectKey=java-web-app -Dsonar.host.url=http://your-sonarqube-url -Dsonar.login=your-sonarqube-token'
+               }
+            }
+        }
 
-        //stage('Docker Build') {
-            //steps {
-            //    sh 'docker build -t $DOCKER_REGISTRY/$IMAGE_NAME .'
-          //  }
-        //}
+        stage('Docker Build') {
+            steps {
+                sh 'docker build -t $DOCKER_REGISTRY/$IMAGE_NAME .'
+            }
+        }
 
-       // stage('Docker Push') {
-         //   steps {
+        stage('Docker Push') {
+            steps {
                 withCredentials([usernamePassword(credentialsId: 'dockerhub-creds', usernameVariable: 'USERNAME', passwordVariable: 'PASSWORD')]) {
-              //      sh 'echo $PASSWORD | docker login -u $USERNAME --password-stdin'
-                //    sh 'docker push $DOCKER_REGISTRY/$IMAGE_NAME'
-           //     }
-            //}
-        //}
+                    sh 'echo $PASSWORD | docker login -u $USERNAME --password-stdin'
+                    sh 'docker push $DOCKER_REGISTRY/$IMAGE_NAME'
+                }
+            }
+        }
 
-       // stage('Deploy') {
-         //   steps {
-           //     sh 'docker run -d -p 8080:8080 $DOCKER_REGISTRY/$IMAGE_NAME'
-            //}
-        //}
-    //}
-//}
+        stage('Deploy') {
+            steps {
+                sh 'docker run -d -p 8080:8080 $DOCKER_REGISTRY/$IMAGE_NAME'
+            }
+        }
+    }
+}
