@@ -42,7 +42,7 @@ jobs:
 
       - name: Run Docker container
         run: |
-          docker run -d -p 8083:8080 ${{ env.DOCKER_IMAGE }}
+          docker run -d -p 8082:8080 ${{ env.DOCKER_IMAGE }}
 
       - name: Push Docker image (optional)
         if: success()
